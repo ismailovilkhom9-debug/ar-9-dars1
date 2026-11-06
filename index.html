@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marker-based AR demo (A-Frame + AR.js)</title>
-  <script src="https://cdn.jsdelivr.net/npm/aframe@1.3.0/dist/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+  <script src="aframe.min.js" onerror="window.libErr=(window.libErr||'')+' aframe.min.js'"></script>
+  <script src="aframe-ar.js" onerror="window.libErr=(window.libErr||'')+' aframe-ar.js'"></script>
   <style>
     #info {
       position: fixed; left: 0; right: 0; top: 0; z-index: 9999; padding: 6px 10px;
@@ -24,8 +24,8 @@
   <div id="status">Kamerani Hiro markeriga qarating</div>
 
   <a-scene vr-mode-ui="enabled: false" renderer="logarithmicDepthBuffer: true;" embedded
-           arjs="sourceType: webcam; debugUIEnabled: false;">
-    <a-marker preset="hiro" id="marker">
+           arjs="sourceType: webcam; debugUIEnabled: false; cameraParametersUrl: camera_para.dat;">
+    <a-marker type="pattern" url="patt.hiro" id="marker">
       <a-box position="0 0.5 0" color="#2a7de1"
              animation="property: rotation; to: 0 360 0; dur: 6000; easing: linear; loop: true"></a-box>
       <a-cylinder position="1.4 0.4 0" radius="0.3" height="0.8" color="#e1a32a"></a-cylinder>
@@ -59,6 +59,7 @@
         'video: ' + (v ? (v.videoWidth + 'x' + v.videoHeight + ' readyState=' + v.readyState + ' paused=' + v.paused + ' z=' + v.style.zIndex) : 'topilmadi'),
         'canvas: ' + (c ? (c.width + 'x' + c.height) : 'topilmadi')
       ];
+      if (window.libErr) lines.push('Yuklanmagan fayl:' + window.libErr);
       if (errors.length) lines.push(errors.slice(-2).join('\n'));
       info.textContent = lines.join('\n');
     }, 1000);
