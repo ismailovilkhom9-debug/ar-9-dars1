@@ -7,7 +7,7 @@
   <script src="aframe-1.5.0.min.js"></script>
 </head>
 <body>
-  <div style="position:fixed; top:6px; left:8px; z-index:5; font:13px monospace; color:#555;">versiya: v5</div>
+  <div style="position:fixed; top:6px; left:8px; z-index:5; font:13px monospace; color:#555;">versiya: v6</div>
   <!--
     Markerless AR: marker yo'q. Brauzer (ARCore orqali) xonani SLAM/VIO bilan kuzatadi,
     pol va stol kabi tekisliklarni topadi (plane detection). hit-test shu tekislikka
@@ -15,7 +15,7 @@
     Ekranga bosganda shu joyga virtual obyekt qo'yiladi.
     Talab: Android + Chrome (HTTPS orqali ochiladi).
   -->
-  <a-scene webxr="optionalFeatures: hit-test, local-floor;"
+  <a-scene webxr="requiredFeatures: local; optionalFeatures: hit-test, local-floor; referenceSpaceType: local;"
            renderer="alpha: true" vr-mode-ui="enabled: false" ar-mode-ui="enabled: false">
 
     <a-entity light="type: ambient; intensity: 0.8"></a-entity>
