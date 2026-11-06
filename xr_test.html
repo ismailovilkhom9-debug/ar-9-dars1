@@ -13,7 +13,9 @@
 <body>
   <h3>AR sessiya testi</h3>
   <p>Bu sahifa A-Frame'siz, to'g'ridan-to'g'ri brauzerning AR imkoniyatini tekshiradi.</p>
-  <button id="b">AR sessiyasini sinash</button>
+  <p><button id="t1">1) Oddiy AR sessiya</button></p>
+  <p><button id="t2">2) hit-test ixtiyoriy</button></p>
+  <p><button id="t3">3) hit-test majburiy</button></p>
   <pre id="o"></pre>
   <script>
     const o = document.getElementById('o');
@@ -23,16 +25,19 @@
         .then(ok => { o.textContent += 'immersive-ar qo\'llanadi: ' + ok + '\n'; })
         .catch(e => { o.textContent += 'isSessionSupported xatosi: ' + e.name + '\n'; });
     }
-    document.getElementById('b').onclick = async () => {
-      o.textContent += 'Sessiya so\'ralmoqda...\n';
+    async function run(name, init) {
+      o.textContent += '\n[' + name + '] so\'ralmoqda...\n';
       try {
-        const s = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] });
-        o.textContent += 'OK: sessiya boshlandi (3 soniyadan keyin yopiladi)\n';
+        const s = await navigator.xr.requestSession('immersive-ar', init);
+        o.textContent += '[' + name + '] OK. yoqilgan imkoniyatlar: ' + JSON.stringify(s.enabledFeatures || 'noma\'lum') + '\n';
         setTimeout(() => s.end(), 3000);
       } catch (e) {
-        o.textContent += 'XATO: ' + e.name + ' - ' + e.message + '\n';
+        o.textContent += '[' + name + '] XATO: ' + e.name + ' - ' + e.message + '\n';
       }
-    };
+    }
+    document.getElementById('t1').onclick = () => run('1 oddiy', {});
+    document.getElementById('t2').onclick = () => run('2 ixtiyoriy', { optionalFeatures: ['hit-test'] });
+    document.getElementById('t3').onclick = () => run('3 majburiy', { requiredFeatures: ['hit-test'] });
   </script>
 </body>
 </html>
