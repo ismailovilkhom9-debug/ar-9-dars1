@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Markerless AR demo (A-Frame + WebXR hit-test)</title>
-  <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe.min.js"></script>
+  <script src="aframe-1.5.0.min.js"></script>
 </head>
 <body>
   <!--
@@ -36,6 +36,17 @@
   </div>
 
   <script>
+    // Qurilma AR'ni qo'llab-quvvatlashini tekshirish
+    window.addEventListener('load', () => {
+      const msg = document.getElementById('msg');
+      if (!window.AFRAME) { msg.textContent = 'Xato: aframe-1.5.0.min.js yuklanmadi'; return; }
+      if (!navigator.xr) { msg.textContent = 'Bu brauzer WebXR\'ni qo\'llamaydi. Android\'da Chrome ishlating.'; return; }
+      navigator.xr.isSessionSupported('immersive-ar').then(ok => {
+        msg.textContent = ok ? 'AR tayyor: pastdagi/o\'ngdagi AR tugmasini bosing, so\'ng telefonni sekin harakatlantiring'
+                             : 'Bu qurilma AR (ARCore) ni qo\'llamaydi yoki Google Play Services for AR o\'rnatilmagan';
+      }).catch(e => { msg.textContent = 'AR tekshiruvi xatosi: ' + e.name; });
+    });
+
     AFRAME.registerComponent('hit-test-reticle', {
       init() {
         const scene = this.el.sceneEl;
