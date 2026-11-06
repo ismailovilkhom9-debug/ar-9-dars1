@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AR sessiya testi (A-Frame'siz)</title>
+  <style>
+    body { margin: 0; padding: 16px; font: 16px/1.5 system-ui, sans-serif; background: #fff; color: #111; }
+    button { font: 600 18px system-ui; padding: 14px 24px; border: 0; border-radius: 10px; background: #2a7de1; color: #fff; }
+    pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h3>AR sessiya testi</h3>
+  <p>Bu sahifa A-Frame'siz, to'g'ridan-to'g'ri brauzerning AR imkoniyatini tekshiradi.</p>
+  <button id="b">AR sessiyasini sinash</button>
+  <pre id="o"></pre>
+  <script>
+    const o = document.getElementById('o');
+    o.textContent = 'navigator.xr: ' + (navigator.xr ? 'bor' : 'YO\'Q') + '\n';
+    if (navigator.xr) {
+      navigator.xr.isSessionSupported('immersive-ar')
+        .then(ok => { o.textContent += 'immersive-ar qo\'llanadi: ' + ok + '\n'; })
+        .catch(e => { o.textContent += 'isSessionSupported xatosi: ' + e.name + '\n'; });
+    }
+    document.getElementById('b').onclick = async () => {
+      o.textContent += 'Sessiya so\'ralmoqda...\n';
+      try {
+        const s = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] });
+        o.textContent += 'OK: sessiya boshlandi (3 soniyadan keyin yopiladi)\n';
+        setTimeout(() => s.end(), 3000);
+      } catch (e) {
+        o.textContent += 'XATO: ' + e.name + ' - ' + e.message + '\n';
+      }
+    };
+  </script>
+</body>
+</html>
