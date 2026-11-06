@@ -14,8 +14,8 @@
     Ekranga bosganda shu joyga virtual obyekt qo'yiladi.
     Talab: Android + Chrome (HTTPS orqali ochiladi).
   -->
-  <a-scene webxr="requiredFeatures: hit-test; optionalFeatures: local-floor, dom-overlay; overlayElement: #overlay;"
-           renderer="alpha: true" vr-mode-ui="enabled: false" ar-mode-ui="enabled: true">
+  <a-scene webxr="requiredFeatures: hit-test; optionalFeatures: local-floor;"
+           renderer="alpha: true" vr-mode-ui="enabled: false" ar-mode-ui="enabled: false">
 
     <a-entity light="type: ambient; intensity: 0.8"></a-entity>
     <a-entity light="type: directional; intensity: 0.8" position="1 3 2"></a-entity>
@@ -32,6 +32,7 @@
 
   <div id="overlay" style="position:fixed; left:12px; right:12px; bottom:12px; padding:10px 14px;
        border-radius:8px; background:#1b2430; color:#fff; font:16px/1.4 system-ui,sans-serif; text-align:center;">
+    <button id="arBtn" style="display:block; margin:0 auto 10px; font:600 18px system-ui,sans-serif; padding:12px 24px; border:0; border-radius:10px; background:#2a7de1; color:#fff;">AR rejimini boshlash</button>
     <span id="msg">AR tugmasini bosing, so'ng telefonni sekin harakatlantiring (initialization)</span>
   </div>
 
@@ -45,6 +46,17 @@
         msg.textContent = ok ? 'AR tayyor: pastdagi/o\'ngdagi AR tugmasini bosing, so\'ng telefonni sekin harakatlantiring'
                              : 'Bu qurilma AR (ARCore) ni qo\'llamaydi yoki Google Play Services for AR o\'rnatilmagan';
       }).catch(e => { msg.textContent = 'AR tekshiruvi xatosi: ' + e.name; });
+    });
+
+    document.getElementById('arBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('msg');
+      const scene = document.querySelector('a-scene');
+      try {
+        msg.textContent = 'AR sessiyasi boshlanmoqda...';
+        await scene.enterAR();
+      } catch (e) {
+        msg.textContent = 'AR xatosi: ' + (e && e.name) + ' - ' + (e && e.message);
+      }
     });
 
     AFRAME.registerComponent('hit-test-reticle', {
