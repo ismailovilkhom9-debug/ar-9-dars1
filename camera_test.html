@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kamera testi</title>
+  <style>
+    body { margin: 0; font: 16px/1.4 system-ui, sans-serif; background: #fff; color: #111; padding: 16px; }
+    video { width: 100%; max-height: 60vh; background: #ddd; border-radius: 8px; }
+    button { font: 600 18px system-ui; padding: 12px 24px; border: 0; border-radius: 10px; background: #2a7de1; color: #fff; }
+    pre { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h3>Kamera testi (AR.js'siz)</h3>
+  <button id="btn">Kamerani yoqish</button>
+  <p><video id="v" autoplay muted playsinline></video></p>
+  <pre id="out"></pre>
+  <script>
+    const out = document.getElementById('out');
+    document.getElementById('btn').onclick = async () => {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const v = document.getElementById('v');
+        v.srcObject = s;
+        await v.play();
+        const st = s.getVideoTracks()[0].getSettings();
+        out.textContent = 'OK: kamera ishlayapti ' + st.width + 'x' + st.height;
+      } catch (e) {
+        out.textContent = 'XATO: ' + e.name + ' - ' + e.message;
+      }
+    };
+  </script>
+</body>
+</html>
