@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marker-based AR demo (A-Frame + AR.js)</title>
+  
   <script src="https://cdn.jsdelivr.net/npm/aframe@1.3.0/dist/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+  
   <style>
-    /* MUHIM: body/html ga background berilmaydi, aks holda AR.js kamera videosini yopib qo'yadi */
     html, body { margin: 0; height: 100%; overflow: hidden; }
     #status {
       position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 9999;
@@ -23,69 +24,85 @@
     }
     #start button {
       font: 600 18px system-ui, sans-serif; padding: 14px 28px; border: 0;
-      border-radius: 10px; background: #2a7de1; color: #fff;
+      border-radius: 10px; background: #2a7de1; color: #fff; cursor: pointer;
     }
   </style>
 </head>
 <body>
+
+  <!-- Boshlang'ich UI -->
   <div id="start">
     <div>Marker-based AR demo</div>
     <div style="font-size:15px; opacity:.8">Tugmani bosing va kameraga ruxsat bering</div>
     <button id="startBtn">Kamerani yoqish</button>
   </div>
 
-  <div id="status">Yuklanmoqda...</div>
+  <!-- Holat paneli -->
+  <div id="status">Kutubxonalar yuklanmoqda...</div>
+
+  <!-- AR Sahna (DOM'da tayyor turadi, faqat kameraga ruxsat kutadi) -->
+  <a-scene vr-mode-ui="enabled: false"
+           renderer="logarithmicDepthBuffer: true; alpha: true"
+           embedded
+           arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
+    
+    <a-marker preset="hiro" id="marker">
+      <a-box position="0 0.5 0" color="#2a7de1"
+             animation="property: rotation; to: 0 360 0; dur: 6000; easing: linear; loop: true"></a-box>
+      <a-cylinder position="1.4 0.4 0" radius="0.3" height="0.8" color="#e1a32a"></a-cylinder>
+      <a-sphere position="-1.4 0.4 0" radius="0.4" color="#d9423a"></a-sphere>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
 
   <script>
     const status = document.getElementById('status');
+    const startOverlay = document.getElementById('start');
+    const startBtn = document.getElementById('startBtn');
+
     function setStatus(text, cls) {
       status.textContent = text;
       status.className = cls || '';
     }
 
-    // 1) Kutubxonalar yuklanganini tekshirish
+    // 1) Kutubxonalar tayyorligini tekshirish
     window.addEventListener('load', () => {
-      if (!window.AFRAME) { setStatus('Xato: A-Frame yuklanmadi (internet yoki jsdelivr muammosi)', 'error'); return; }
-      if (!AFRAME.systems || !AFRAME.systems.arjs) { setStatus('Xato: AR.js yuklanmadi (internet yoki jsdelivr muammosi)', 'error'); return; }
+      if (!window.AFRAME) { 
+        setStatus('Xato: A-Frame yuklanmadi', 'error'); 
+        return; 
+      }
+      if (!AFRAME.components.arjs) { 
+        setStatus('Xato: AR.js yuklanmadi', 'error'); 
+        return; 
+      }
       setStatus('Tayyor: "Kamerani yoqish" tugmasini bosing');
     });
 
-    // 2) Tugma bosilganda kameraga ruxsat so'raymiz, keyin AR sahnasini qo'shamiz
-    document.getElementById('startBtn').addEventListener('click', async () => {
+    // 2) Tugma bosilganda kameraga ruxsat so'rash
+    startBtn.addEventListener('click', async () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        setStatus('Xato: brauzer kamerani qo\'llamaydi yoki sahifa HTTPS emas', 'error');
-        document.getElementById('start').style.display = 'none';
+        setStatus('Xato: Brauzer kamerani qo\'llamaydi yoki sahifa HTTPS emas', 'error');
+        startOverlay.style.display = 'none';
         return;
       }
+
       try {
-        const test = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        test.getTracks().forEach(t => t.stop());
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        // Stream muvaffaqiyatli olindi, uni to'xtatib AR.js ga beramiz
+        stream.getTracks().forEach(t => t.stop());
+        
+        startOverlay.style.display = 'none';
+        setStatus('Kamerani Hiro markeriga qarating');
+        initMarkerEvents();
       } catch (e) {
-        document.getElementById('start').style.display = 'none';
-        setStatus('Kamera xatosi: ' + e.name + '. Chrome sozlamalaridan kameraga ruxsat bering.', 'error');
-        return;
+        startOverlay.style.display = 'none';
+        setStatus('Kamera xatosi: ' + e.name + '. Kameraga ruxsat berilganini tekshiring.', 'error');
       }
-      document.getElementById('start').style.display = 'none';
-      setStatus('Kamerani Hiro markeriga qarating');
-      buildScene();
     });
 
-    function buildScene() {
-      const html = `
-        <a-scene vr-mode-ui="enabled: false"
-                 renderer="logarithmicDepthBuffer: true; alpha: true"
-                 embedded
-                 arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;">
-          <a-marker preset="hiro" id="marker">
-            <a-box position="0 0.5 0" color="#2a7de1"
-                   animation="property: rotation; to: 0 360 0; dur: 6000; easing: linear; loop: true"></a-box>
-            <a-cylinder position="1.4 0.4 0" radius="0.3" height="0.8" color="#e1a32a"></a-cylinder>
-            <a-sphere position="-1.4 0.4 0" radius="0.4" color="#d9423a"></a-sphere>
-          </a-marker>
-          <a-entity camera></a-entity>
-        </a-scene>`;
-      document.body.insertAdjacentHTML('afterbegin', html);
-
+    // 3) Marker hodisalarini ulash
+    function initMarkerEvents() {
       const marker = document.getElementById('marker');
       marker.addEventListener('markerFound', () => setStatus('Marker topildi: tracking ishlayapti', 'found'));
       marker.addEventListener('markerLost', () => setStatus('Marker yo\'qoldi: tracking to\'xtadi'));
